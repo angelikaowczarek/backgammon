@@ -9,6 +9,8 @@ import java.net.URL;
 
 public class ImageService {
     private static final String BACKGROUND_IMAGE_LOCATION = "background.png";
+    private static final String BLACK_CHECKER_IMAGE_LOCATION = "black_checker.png";
+    private static final String WHITE_CHECKER_IMAGE_LOCATION = "white_checker.png";
     private BufferedImage backgroundImage;
     private BufferedImage blackChecker;
     private BufferedImage whiteChecker;
@@ -25,7 +27,21 @@ public class ImageService {
 
     public BufferedImage getCheckerImage(PointColor pointColor) {
         if (pointColor == PointColor.BLACK) {
-            return blackChecker;
+            return getBlackCheckerImage();
+        }
+        return getWhiteChecker();
+    }
+
+    private BufferedImage getBlackCheckerImage() {
+        if (blackChecker == null) {
+            blackChecker = loadImage(BLACK_CHECKER_IMAGE_LOCATION);
+        }
+        return blackChecker;
+    }
+
+    private BufferedImage getWhiteChecker() {
+        if (whiteChecker == null) {
+            whiteChecker = loadImage(WHITE_CHECKER_IMAGE_LOCATION);
         }
         return whiteChecker;
     }
