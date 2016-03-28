@@ -6,6 +6,7 @@
 
     <groupId>com.github.angelikaowczarek</groupId>
     <artifactId>backgammon</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <build>
         <plugins>
@@ -19,6 +20,11 @@
             </plugin>
         </plugins>
     </build>
+    <modules>
+        <module>backgammon-client</module>
+        <module>backgammon-server</module>
+        <module>game-state</module>
+    </modules>
 
     <dependencies>
         <dependency>
@@ -30,8 +36,13 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.16.8</version>
+            <version>1.16.6</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.19</version>
         </dependency>
     </dependencies>
 </project>
