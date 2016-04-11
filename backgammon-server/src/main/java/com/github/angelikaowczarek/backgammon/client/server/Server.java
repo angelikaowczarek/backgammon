@@ -4,14 +4,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+//TODO:
+// wysyłanie GameState
+
 public class Server {
-    private static final int SERVER_PORT = 8789;
+    private static final int SERVER_PORT = 1342;
     private ServerSocket socket;
     private boolean serverIsRunning;
     private Executor clientsExecutor = Executors.newCachedThreadPool();

@@ -1,5 +1,7 @@
 package com.github.angelikaowczarek.backgammon.client;
 
+import com.githum.angelikaowczarek.backgammon.game.GameState;
+
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -28,6 +30,11 @@ public class ServerConnector {
             log.error("Error while sending command");
             throw new RuntimeException(e);
         }
+    }
+
+    public void receiveGameState(GameState gameState) {
+        // TODO
+        log.info("Receiving gameState from server");
     }
 
     private OutputStreamWriter createServerWriter(Socket socket) {

@@ -4,6 +4,13 @@ import com.githum.angelikaowczarek.backgammon.game.StackColor;
 import com.githum.angelikaowczarek.backgammon.game.StackState;
 
 public class GameRules {
+    // TODO:
+    // - skąd pochodzi pionek
+    // - o ile pól chce się przemieścić
+    // - zasady postępowania, gdy wszystkie pionki są w domu
+    // OSOBNO:
+    // - odkładanie z linii do dworu
+
     public boolean canMoveTo(StackState stack, StackColor color) {
         return colorMatches(stack, color) ||
                 colorMatches(stack, StackColor.EMPTY) ||

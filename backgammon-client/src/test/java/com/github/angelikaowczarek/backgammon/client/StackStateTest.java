@@ -84,12 +84,12 @@ public class StackStateTest {
         assertEquals(StackColor.BLACK, stackState.getStackColor());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionWhenWePushWhiteCheckerOnBlackPoint() throws Exception {
-        // given
-        StackState stackState = new StackState(StackColor.BLACK, RANDOM_NUMBER_OF_CHECKERS);
-
-        // when
-        stackState.push(StackColor.WHITE);
-    }
+//    @Test(expected = IllegalArgumentException.class)
+//    public void shouldThrowExceptionWhenWePushWhiteCheckerOnBlackPoint() throws Exception {
+//        // given
+//        StackState stackState = new StackState(StackColor.BLACK, RANDOM_NUMBER_OF_CHECKERS);
+//
+//        // when
+//        stackState.push(StackColor.WHITE);
+//    }
 }
