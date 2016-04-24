@@ -19,6 +19,7 @@ public class ImageService {
     private static final String DICE4_IMAGE_LOCATION = "dice4.png";
     private static final String DICE5_IMAGE_LOCATION = "dice5.png";
     private static final String DICE6_IMAGE_LOCATION = "dice6.png";
+    private static final String ROLL_DICE_IMAGE_LOCATION = "rollDice.png";
     private BufferedImage backgroundImage;
     private BufferedImage blackChecker;
     private BufferedImage whiteChecker;
@@ -30,6 +31,7 @@ public class ImageService {
     private BufferedImage dice4;
     private BufferedImage dice5;
     private BufferedImage dice6;
+    private BufferedImage rollDice;
     //private BufferedImage[] dices = {dice1, dice2, dice3, dice4, dice5, dice6};
 
     public ImageService() {
@@ -133,6 +135,13 @@ public class ImageService {
             dice6 = loadImage(DICE6_IMAGE_LOCATION);
         }
         return dice6;
+    }
+
+    public BufferedImage getRollDiceImage() {
+        if (rollDice == null) {
+            rollDice = loadImage(ROLL_DICE_IMAGE_LOCATION);
+        }
+        return rollDice;
     }
 
     private BufferedImage loadImage(String location) {

@@ -8,6 +8,5 @@ import com.githum.angelikaowczarek.backgammon.game.GameState;
 public class MainServer {
     public static void main(String[] args) {
         Server server = new Server();
-        GameState gameState = new GameState();
     }
 }

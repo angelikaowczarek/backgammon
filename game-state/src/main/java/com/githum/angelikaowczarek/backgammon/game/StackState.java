@@ -1,6 +1,8 @@
 package com.githum.angelikaowczarek.backgammon.game;
 
-public class StackState {
+import java.io.Serializable;
+
+public class StackState implements Serializable{
     private StackColor stackColor;
     private int numberOfCheckers;
 

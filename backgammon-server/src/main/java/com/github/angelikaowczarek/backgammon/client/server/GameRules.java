@@ -17,7 +17,7 @@ public class GameRules {
                 hasSingleOpponentChecker(stack, color);
     }
 
-    private boolean hasSingleOpponentChecker(StackState stack, StackColor color) {
+    public boolean hasSingleOpponentChecker(StackState stack, StackColor color) {
         return isSingle(stack, getOpponentColor(color));
     }
 

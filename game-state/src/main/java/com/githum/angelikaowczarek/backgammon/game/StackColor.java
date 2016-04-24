@@ -1,5 +1,7 @@
 package com.githum.angelikaowczarek.backgammon.game;
 
-public enum StackColor {
+import java.io.Serializable;
+
+public enum StackColor implements Serializable{
     EMPTY, WHITE, BLACK
 }

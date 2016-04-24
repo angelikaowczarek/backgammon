@@ -1,16 +1,21 @@
 package com.github.angelikaowczarek.backgammon.client;
 
 import com.githum.angelikaowczarek.backgammon.game.GameState;
-
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.net.Socket;
+import java.util.Observable;
 
-public class ServerConnector {
+public class ServerConnector extends Observable {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ServerConnector.class);
     private Socket socket;
     private Writer serverWriter;
+    private ObjectInputStream ois;
+
+    @Override
+    public void notifyObservers(Object arg) {
+        super.setChanged();
+        super.notifyObservers(arg);
+    }
 
     public void connect(String host, int port) {
         log.info("Connecting to {}:{}", host, port);
@@ -20,21 +25,49 @@ public class ServerConnector {
         } catch (IOException e) {
             e.printStackTrace();
         }
+//        try {
+//            receiveGameState();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+//        }
+
+
+        Thread receivingThread = new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        ois = new ObjectInputStream(socket.getInputStream());
+                        log.info("Receiving gameState from server");
+                        notifyObservers(ois.readObject());
+                    } catch (IOException ex) {
+                        notifyObservers(ex);
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        receivingThread.start();
     }
 
     public void sendCommand(String command) {
         try {
             log.info("Sending command {} to server", command);
             serverWriter.write(command);
+            serverWriter.flush();
         } catch (IOException e) {
             log.error("Error while sending command");
             throw new RuntimeException(e);
         }
     }
 
-    public void receiveGameState(GameState gameState) {
-        // TODO
+    public GameState receiveGameState() throws IOException, ClassNotFoundException {
+        ois = new ObjectInputStream(socket.getInputStream());
         log.info("Receiving gameState from server");
+        return (GameState) ois.readObject();
     }
 
     private OutputStreamWriter createServerWriter(Socket socket) {
