@@ -25,14 +25,6 @@ public class ServerConnector extends Observable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        try {
-//            receiveGameState();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        }
-
 
         Thread receivingThread = new Thread() {
             @Override

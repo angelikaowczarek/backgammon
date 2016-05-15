@@ -16,7 +16,6 @@ public class GameState implements Serializable{
 
     // TODO:
     // przechowywanie pionów w dworze.
-    // Gdzie losowanie kostek?
 
     public GameState() {
         stacks = new StackState[24];
@@ -102,11 +101,19 @@ public class GameState implements Serializable{
     public void popStack(int numberOfStack) {
         stacks[numberOfStack - 1]
                     .setNumberOfCheckers(stacks[numberOfStack - 1].getNumberOfCheckers() - 1);
+        if (stacks[numberOfStack - 1].getNumberOfCheckers() == 0)
+            stacks[numberOfStack - 1].setStackColor(StackColor.EMPTY);
+    }
+
+    public void pushStack(int numberOfStack, StackColor stackColor) {
+        stacks[numberOfStack - 1]
+                    .setNumberOfCheckers(stacks[numberOfStack - 1].getNumberOfCheckers() + 1);
+        stacks[numberOfStack - 1].setStackColor(stackColor);
     }
 
     public void pushStack(int numberOfStack) {
         stacks[numberOfStack - 1]
-                    .setNumberOfCheckers(stacks[numberOfStack - 1].getNumberOfCheckers() + 1);
+                .setNumberOfCheckers(stacks[numberOfStack - 1].getNumberOfCheckers() + 1);
     }
 
     public StackState[] getStacks() {
