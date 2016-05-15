@@ -13,6 +13,7 @@ public class GameState implements Serializable{
     private List<Boolean> isDiceUsed;
     private int beatenBlackCheckers;
     private int beatenWhiteCheckers;
+    private int numberOfConnectedUsers;
 
     // TODO:
     // przechowywanie pionów w dworze.
@@ -29,6 +30,7 @@ public class GameState implements Serializable{
         isDiceUsed = new ArrayList<>();
         beatenBlackCheckers = 0;
         beatenWhiteCheckers = 0;
+        numberOfConnectedUsers = 0;
     }
 
     public void rollDice() {
@@ -146,6 +148,14 @@ public class GameState implements Serializable{
 
     public void removeBeatenWhiteCheckers() {
         beatenWhiteCheckers--;
+    }
+
+    public int getNumberOfConnectedUsers() {
+        return numberOfConnectedUsers;
+    }
+
+    public void setNumberOfConnectedUsers(int numberOfConnectedUsers) {
+        this.numberOfConnectedUsers = numberOfConnectedUsers;
     }
 }
 

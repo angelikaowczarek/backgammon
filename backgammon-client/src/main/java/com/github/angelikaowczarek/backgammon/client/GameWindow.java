@@ -16,14 +16,20 @@ public class GameWindow extends JFrame implements Observer{
     private GameState gameState;
     private BoardPanel boardPanel;
     private StackColor clientColor;
+    private boolean isColorSet = false;
 
-    public GameWindow() {
+    public GameWindow(){
         super("Backgammon - Angelika Owczarek");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(735, 522);
         setResizable(false);
         add(getBoardPanel());
         gameController.getServerConnector().addObserver(this);
+//        JOptionPane.showMessageDialog(this,
+//                "Zaczynamy?",
+//                "Start",
+//                JOptionPane.PLAIN_MESSAGE);
+//        gameController.getServerConnector().sendCommand("START");
     }
 
     private BoardPanel getBoardPanel() {
@@ -57,6 +63,10 @@ public class GameWindow extends JFrame implements Observer{
             SwingUtilities.invokeAndWait(new Runnable() {
                 public void run() {
                     boardPanel.updateGameState((GameState) arg);
+//                    if (gameState.getNumberOfConnectedUsers() == 1 && isColorSet == false)
+//                        clientColor = StackColor.WHITE;
+//                    else if (gameState.getNumberOfConnectedUsers() == 2 && isColorSet == false)
+//                        clientColor = StackColor.BLACK;
                 }
             });
         } catch (InterruptedException e) {

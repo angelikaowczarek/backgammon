@@ -1,6 +1,8 @@
 package com.github.angelikaowczarek.backgammon.client;
 
 import com.githum.angelikaowczarek.backgammon.game.GameState;
+
+import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.Observable;
@@ -43,6 +45,10 @@ public class ServerConnector extends Observable {
             }
         };
         receivingThread.start();
+    }
+
+    public Socket getSocket() {
+        return socket;
     }
 
     public void sendCommand(String command) {
