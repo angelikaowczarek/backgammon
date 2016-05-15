@@ -64,7 +64,7 @@ public class CommandPerformer {
     private boolean checkIsFromBeatenQueue() {
         if (gameState.getBeatenBlackCheckers() > 0 && currentColor == StackColor.BLACK) {
             originStackNumber = 25;
-            for (int i = 24; i <= 18; i--) {
+            for (int i = 24; i >= 18; i--) {
                 if (new GameRules().canMoveTo(gameState.getStack(i), currentColor)) {
                     isAnyPopped = true;
                     return true;
@@ -105,7 +105,6 @@ public class CommandPerformer {
             if ( !(gameState.getBeatenWhiteCheckers() > 0 && currentColor == StackColor.WHITE)
                     && !(gameState.getBeatenBlackCheckers() > 0 && currentColor == StackColor.BLACK))
                 gameState.pushStack(originStackNumber, currentColor);
-            System.out.println("odkladam");
             isAnyPopped = false;
         }
         if (!gameState.getIsDiceUsed().contains(false)) {
