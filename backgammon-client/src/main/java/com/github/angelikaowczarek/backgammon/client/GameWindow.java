@@ -23,6 +23,11 @@ public class GameWindow extends JFrame implements Observer{
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(735, 522);
         setResizable(false);
+
+//        JOptionPane.showMessageDialog(this,
+//                "Gratulacje! Wygrał gracz biały!",
+//                "Koniec gry",
+//                JOptionPane.PLAIN_MESSAGE);
         add(getBoardPanel());
         gameController.getServerConnector().addObserver(this);
 //        JOptionPane.showMessageDialog(this,

@@ -17,6 +17,15 @@ public class BoardDrawer {
     private static final ImageObserver NO_IMAGE_OBSERVER = null;
     private static final int MAX_NUMBER_OF_STACKS = 24;
     private static final int NUMBER_OF_FIRST_STACK_IN_UPPER_ROW = 13;
+    public static final int STACK_WIDTH = 50;
+    public static final int CHECKER_HEIGHT = 41;
+    public static final int CHECKER_SIDE_HEIGHT = 13;
+    public static final int SIDE_PADDING_WIDTH = 15;
+    public static final int RIGHT_BAND_X_LOCATION = 665;
+    public static final int CENTER_PADDING_WIDTH = 50;
+    public static final int HEIGHT = 522;
+    public static final int WIDTH = 735;
+    public static final int BORN_OFF_X_LOCATION = 681;
     private Graphics2D canvas;
     private GameState gameState;
     private ImageService imageService;
@@ -29,13 +38,18 @@ public class BoardDrawer {
             drawDice(gameState.getDice());
         drawCheckersOnStacks();
         drawBeatenCheckers();
+        drawBornOffCheckers();
     }
+
+    /*
+    Methods used to draw the dice or the button.
+     */
 
     public void drawDice(List<Integer> dice) {
         drawDiceImage(dice.get(0), 1);
         drawDiceImage(dice.get(1), 2);
 
-        if ( dice.get(0).equals(dice.get(1)) ) {
+        if (dice.get(0).equals(dice.get(1))) {
             drawDiceImage(dice.get(2), 3);
             drawDiceImage(dice.get(3), 4);
         }
@@ -44,8 +58,8 @@ public class BoardDrawer {
     private void drawDiceImage(int numberOnDice, int diceNumber) {
         canvas.drawImage(
                 imageService.getDiceImage(numberOnDice),
-                (int)getDiceLocation(diceNumber).getX(),
-                (int)getDiceLocation(diceNumber).getY(),
+                (int) getDiceLocation(diceNumber).getX(),
+                (int) getDiceLocation(diceNumber).getY(),
                 NO_IMAGE_OBSERVER);
     }
 
@@ -58,24 +72,28 @@ public class BoardDrawer {
 
     private Point getDiceLocation(int diceNumber) {
         Point diceLocation = new Point();
-        if ( diceNumber ==  1 )
+        if (diceNumber == 1)
             diceLocation.setLocation(445, 226);
-        else if ( diceNumber ==  2 )
+        else if (diceNumber == 2)
             diceLocation.setLocation(525, 226);
-        else if ( diceNumber ==  3 )
+        else if (diceNumber == 3)
             diceLocation.setLocation(365, 226);
         else
             diceLocation.setLocation(605, 226);
         return diceLocation;
     }
 
+    /*
+    Methods used to draw the checkers.
+     */
+
     private void drawCheckersOnStacks() {
         for (int stackNumber = 1; stackNumber <= MAX_NUMBER_OF_STACKS; stackNumber++) {
-            drawCheckersOnPoint(gameState.getStack(stackNumber), stackNumber);
+            drawCheckersOnStack(gameState.getStack(stackNumber), stackNumber);
         }
     }
 
-    private void drawCheckersOnPoint(StackState stack, int stackNumber) {
+    private void drawCheckersOnStack(StackState stack, int stackNumber) {
         Point pointLocation = getStackLocation(stackNumber, stack.getNumberOfCheckers());
 
         for (int checkerNumber = 1; checkerNumber <= stack.getNumberOfCheckers(); checkerNumber++) {
@@ -83,9 +101,9 @@ public class BoardDrawer {
                     pointLocation,
                     stack.getStackColor());
             if (isPointInTopRow(stackNumber))
-                pointLocation.setLocation(pointLocation.getX(), pointLocation.getY()-getCheckerHeight());
+                pointLocation.setLocation(pointLocation.getX(), pointLocation.getY() - CHECKER_HEIGHT);
             else
-                pointLocation.setLocation(pointLocation.getX(), pointLocation.getY()+getCheckerHeight());
+                pointLocation.setLocation(pointLocation.getX(), pointLocation.getY() + CHECKER_HEIGHT);
         }
     }
 
@@ -96,6 +114,39 @@ public class BoardDrawer {
                 (int) checkerLocation.getY(),
                 NO_IMAGE_OBSERVER);
     }
+
+    private Point getStackLocation(int pointNumber, int numberOfCheckers) {
+        return new Point(getStackXLocation(pointNumber), getStackYLocation(pointNumber, numberOfCheckers));
+    }
+
+    private int getStackXLocation(int pointNumber) {
+        if (isPointInTopRow(pointNumber)) {
+            if (pointNumber > 18)
+                return SIDE_PADDING_WIDTH
+                        + CENTER_PADDING_WIDTH
+                        + STACK_WIDTH * (pointNumber - 13);
+            return SIDE_PADDING_WIDTH + STACK_WIDTH * (pointNumber - 13);
+        }
+        if (pointNumber > 6)
+            return RIGHT_BAND_X_LOCATION
+                    - CENTER_PADDING_WIDTH
+                    - (pointNumber * STACK_WIDTH);
+        return RIGHT_BAND_X_LOCATION - (pointNumber * STACK_WIDTH);
+    }
+
+    private int getStackYLocation(int pointNumber, int numberOfCheckers) {
+        if (isPointInTopRow(pointNumber)) {
+            return 15 + CHECKER_HEIGHT * (numberOfCheckers - 1);
+        }
+        return 466 - CHECKER_HEIGHT * (numberOfCheckers - 1);
+    }
+
+    private boolean isPointInTopRow(int pointNumber) {
+        return pointNumber >= NUMBER_OF_FIRST_STACK_IN_UPPER_ROW;
+    }
+    /*
+    Method used to draw the beaten checkers.
+     */
 
     private void drawBeatenCheckers() {
         for (int i = 0; i < gameState.getBeatenWhiteCheckers(); i++) {
@@ -109,79 +160,50 @@ public class BoardDrawer {
         }
     }
 
-    private void drawCheckerSide(Point absoluteCheckerSideLocation, StackColor stackColor) {
-        canvas.drawImage(
-                imageService.getCheckerSideImage(stackColor),
-                (int) absoluteCheckerSideLocation.getX(),
-                (int) absoluteCheckerSideLocation.getY(),
-                NO_IMAGE_OBSERVER);
-    }
-
-    private Point getStackLocation(int pointNumber, int numberOfCheckers) {
-        return new Point(getStackXLocation(pointNumber), getStackYLocation(pointNumber, numberOfCheckers));
-    }
-
-    private int getStackXLocation(int pointNumber) {
-        if (isPointInTopRow(pointNumber)) {
-            if (pointNumber > 18 )
-                return getSidePaddingWidth()
-                        + getCenterPadding()
-                        + getPointWidth() * (pointNumber - 13);
-            return getSidePaddingWidth() + getPointWidth() * (pointNumber - 13);
-        }
-        if (pointNumber > 6 )
-            return getRightBandXLocation()
-                    - getCenterPadding()
-                    - (pointNumber * getPointWidth());
-        return getRightBandXLocation() - (pointNumber * getPointWidth());
-    }
-
     private int getBeatenXLocation() {
         return 315;
     }
 
     private int getBeatenBlackYLocation(int numberOfBeaten) {
-        return 15 + (numberOfBeaten) * getCheckerHeight();
+        return 15 + (numberOfBeaten) * CHECKER_HEIGHT;
     }
 
     private int getBeatenWhiteYLocation(int numberOfBeaten) {
-        return 466 - (numberOfBeaten) * getCheckerHeight();
+        return 466 - (numberOfBeaten) * CHECKER_HEIGHT;
     }
 
-    private int getPointWidth() {
-        return 50;
-    }
+    /*
+    Methods used to draw born off checkers.
+     */
 
-    private int getCheckerHeight() {
-        return 41;
-    }
-
-    private int getSidePaddingWidth() {
-        return 15;
-    }
-
-    private int getRightBandXLocation() {
-        return 665;
-    }
-
-    private boolean isPointInTopRow(int pointNumber) {
-        return pointNumber >= NUMBER_OF_FIRST_STACK_IN_UPPER_ROW;
-    }
-
-    private int getStackYLocation(int pointNumber, int numberOfCheckers) {
-        if (isPointInTopRow(pointNumber)) {
-            return 15 + getCheckerHeight() * (numberOfCheckers - 1);
+    private void drawBornOffCheckers() {
+        for (int i = 0; i < gameState.getBornOffWhite().getNumberOfCheckers(); i++) {
+            Point point = new Point(BORN_OFF_X_LOCATION, getBornOffWhiteLocation(i));
+            drawCheckerSide(point, StackColor.WHITE);
         }
-        return 466 - getCheckerHeight() * (numberOfCheckers - 1);
+
+        for (int i = 0; i < gameState.getBornOffBlack().getNumberOfCheckers(); i++) {
+            Point point = new Point(BORN_OFF_X_LOCATION, getBornOffBlackLocation(i));
+            drawCheckerSide(point, StackColor.BLACK);
+        }
     }
 
-    private int getCenterPadding() {
-        return 50;
+    private void drawCheckerSide(Point checkerSideLocation, StackColor stackColor) {
+        canvas.drawImage(
+                imageService.getCheckerSideImage(stackColor),
+                (int) checkerSideLocation.getX(),
+                (int) checkerSideLocation.getY(),
+                NO_IMAGE_OBSERVER);
     }
 
-    private int getBoardHeight() {
-        // TODO
-        return 0;
+    private int getBornOffWhiteLocation(int checkerNumber) {
+        return SIDE_PADDING_WIDTH
+                + checkerNumber * CHECKER_SIDE_HEIGHT;
+    }
+
+    private int getBornOffBlackLocation(int checkerNumber) {
+        return HEIGHT - SIDE_PADDING_WIDTH - CHECKER_SIDE_HEIGHT
+                - checkerNumber * CHECKER_SIDE_HEIGHT;
     }
 
     private void drawBackground() {

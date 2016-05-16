@@ -4,6 +4,7 @@ import com.githum.angelikaowczarek.backgammon.game.GameState;
 import com.githum.angelikaowczarek.backgammon.game.StackColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -16,6 +17,9 @@ public class CommandPerformer {
     private StackColor originStackColor;
     private static final Logger log = LoggerFactory.getLogger(Server.class);
     private GameState gameState;
+    private int diceInUsageIndex = -1;
+    private boolean isFromBeatenQueue;
+    private StackColor colorInBeatenQueue;
 
     public CommandPerformer() {
         socketsColors.add(StackColor.WHITE);
@@ -47,7 +51,11 @@ public class CommandPerformer {
     }
 
     private void pop(String command, Socket clientSocket) {
-        if (checkIsFromBeatenQueue()) return;
+        isFromBeatenQueue = checkIsFromBeatenQueue();
+        if (isFromBeatenQueue) {
+            colorInBeatenQueue = currentColor;
+            return;
+        }
 
         int stackIndex = Integer.parseInt(command);
 
@@ -65,7 +73,8 @@ public class CommandPerformer {
         if (gameState.getBeatenBlackCheckers() > 0 && currentColor == StackColor.BLACK) {
             originStackNumber = 25;
             for (int i = 24; i >= 18; i--) {
-                if (new GameRules().canMoveTo(gameState.getStack(i), currentColor)) {
+                if (new GameRules().canMoveTo(gameState.getStack(i), currentColor)
+                        && doesAnyDiceAllowToMove(i)) {
                     isAnyPopped = true;
                     return true;
                 }
@@ -74,13 +83,15 @@ public class CommandPerformer {
             for (int j = 0; j < 4; j++) {
                 gameState.setIsDiceUsed(j);
             }
+            letOtherUserMove();
             isAnyPopped = false;
             return true;
         }
         if (gameState.getBeatenWhiteCheckers() > 0 && currentColor == StackColor.WHITE) {
             originStackNumber = 0;
             for (int i = 1; i <= 6; i++) {
-                if (new GameRules().canMoveTo(gameState.getStack(i), currentColor)) {
+                if (new GameRules().canMoveTo(gameState.getStack(i), currentColor)
+                        && doesAnyDiceAllowToMove(i)) {
                     isAnyPopped = true;
                     return true;
                 }
@@ -89,6 +100,7 @@ public class CommandPerformer {
             for (int j = 0; j < 4; j++) {
                 gameState.setIsDiceUsed(j);
             }
+            letOtherUserMove();
             isAnyPopped = false;
             return true;
         }
@@ -99,103 +111,111 @@ public class CommandPerformer {
         System.out.println(originStackNumber);
         System.out.println("Kolor: " + originStackColor);
         int stackIndex = Integer.parseInt(command);
-        if (new GameRules().canMoveTo(gameState.getStack(stackIndex), currentColor)) {
+        if (!doesAnyDiceAllowToMove(stackIndex)) {
+            gameState.pushStack(originStackNumber, currentColor);
+            return;
+        }
+
+        if (stackIndex == 0 && currentColor.equals(StackColor.BLACK)) {
+            gameState.addBornOffBlack();
+            isAnyPopped = false;
+            gameState.setIsDiceUsed(diceInUsageIndex);
+        } else if (stackIndex == 25 && currentColor.equals(StackColor.WHITE)) {
+            gameState.addBornOffWhite();
+            isAnyPopped = false;
+            gameState.setIsDiceUsed(diceInUsageIndex);
+        } else if (new GameRules().canMoveTo(gameState.getStack(stackIndex), currentColor)) {
             tryToPush(stackIndex);
         } else {
-            if ( !(gameState.getBeatenWhiteCheckers() > 0 && currentColor == StackColor.WHITE)
+            if (!(gameState.getBeatenWhiteCheckers() > 0 && currentColor == StackColor.WHITE)
                     && !(gameState.getBeatenBlackCheckers() > 0 && currentColor == StackColor.BLACK))
                 gameState.pushStack(originStackNumber, currentColor);
             isAnyPopped = false;
         }
+
         if (!gameState.getIsDiceUsed().contains(false)) {
+            letOtherUserMove();
+        }
+    }
+
+    private void letOtherUserMove() {
             if (currentColor.equals(StackColor.WHITE))
                 currentColor = StackColor.BLACK;
             else
                 currentColor = StackColor.WHITE;
             gameState.setTimeToRollDice(true);
-        }
     }
 
     private void tryToPush(int stackIndex) {
-        int diceIndex;
-        boolean isFromBeatenQueue;
-        System.out.println(originStackColor +" "+ originStackNumber);
-        int tempStackForQueue = originStackNumber;
-        isFromBeatenQueue = isFromBeatenQueue();
-        diceIndex = getDiceIndex(stackIndex);     // If move is possible; else -1
-
-        if (diceIndex == -1 ) {
-            gameState.pushStack(tempStackForQueue, currentColor);
-            isAnyPopped = false;
-            return;
-        }
 
         if (!new GameRules().hasSingleOpponentChecker(
                 gameState.getStack(stackIndex),
                 currentColor)) {
-            System.out.println("single opponent" + currentColor.toString());
-            gameState.pushStack(stackIndex, currentColor);
-        }
-        else {
-            System.out.println("beat it" + currentColor.toString());
-            System.out.println("Stack: " + gameState.getStack(stackIndex).getStackColor());
-            System.out.println(new GameRules().hasSingleOpponentChecker(
-                    gameState.getStack(stackIndex),
-                    getOpponentColor(currentColor)));
+            if (stackIndex == 0 && currentColor.equals(StackColor.BLACK)) {
+                gameState
+                        .getBornOffBlack()
+                        .setNumberOfCheckers(gameState.getBornOffBlack()
+                                .getNumberOfCheckers() + 1);
+            } else if (stackIndex == 25 && currentColor.equals(StackColor.WHITE)) {
+                gameState
+                        .getBornOffWhite()
+                        .setNumberOfCheckers(gameState.getBornOffWhite()
+                                .getNumberOfCheckers() + 1);
+            } else {
+                gameState.pushStack(stackIndex, currentColor);
+            }
+        } else {
             beatTheChecker(stackIndex);
+            gameState.getStack(stackIndex).setStackColor(currentColor);
         }
-
-        gameState.getStack(stackIndex).setStackColor(currentColor);
 
         if (isFromBeatenQueue) {
             popCheckerFromBeatenQueue();
         }
 
-        gameState.setIsDiceUsed(diceIndex);
         isAnyPopped = false;
+        gameState.setIsDiceUsed(diceInUsageIndex);
+    }
+
+    private boolean doesAnyDiceAllowToMove(int stackIndex) {
+        int diceIndex = getAllowingDiceIndex(stackIndex);     // If move is possible; else -1
+
+        if (diceIndex == -1) {
+            if (isFromBeatenQueue && currentColor == colorInBeatenQueue)
+                letOtherUserMove();
+            isAnyPopped = false;
+            return false;
+        }
+
+        diceInUsageIndex = diceIndex;
+        return true;
     }
 
     private void popCheckerFromBeatenQueue() {
         if (currentColor == StackColor.WHITE)
-            gameState.removeBeatenWhiteCheckers();
+            gameState.removeBeatenWhiteChecker();
         else
-            gameState.removeBeatenBlackCheckers();
+            gameState.removeBeatenBlackChecker();
     }
 
     private void beatTheChecker(int stackIndex) {
         if (currentColor == StackColor.WHITE) {
             gameState.addBeatenBlackCheckers();
             gameState.getStack(stackIndex).setStackColor(StackColor.WHITE);
-        }
-        else {
+        } else {
             gameState.addBeatenWhiteCheckers();
             gameState.getStack(stackIndex).setStackColor(StackColor.BLACK);
         }
     }
 
-    private boolean isFromBeatenQueue() {
-        boolean isFromBeatenQueue;
-        if (gameState.getBeatenBlackCheckers() > 0 && currentColor == StackColor.BLACK) {
-            originStackNumber = 25;
-            isFromBeatenQueue = true;
-            return isFromBeatenQueue;
-        }
-        if (gameState.getBeatenWhiteCheckers() > 0 && currentColor == StackColor.WHITE) {
-            originStackNumber = 0;
-            isFromBeatenQueue = true;
-        } else
-            isFromBeatenQueue = false;
-        return isFromBeatenQueue;
-    }
+//    private StackColor getOpponentColor(StackColor color) {
+//        if (color == StackColor.BLACK) {
+//            return StackColor.WHITE;
+//        }
+//        return StackColor.BLACK;
+//    }
 
-    private StackColor getOpponentColor(StackColor color) {
-        if (color == StackColor.BLACK) {
-            return StackColor.WHITE;
-        }
-        return StackColor.BLACK;
-    }
-
-    private int getDiceIndex(int stackIndex) {
+    private int getAllowingDiceIndex(int stackIndex) {
         int diceNumberIndex = -1;
         for (int i = 0; i < gameState.getDice().size(); i++) {
             if (gameState.getDice().get(i).equals(stackIndex - originStackNumber)

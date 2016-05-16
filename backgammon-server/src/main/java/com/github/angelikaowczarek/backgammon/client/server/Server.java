@@ -19,11 +19,7 @@ public class Server {
     private ServerSocket socket;
     private ArrayList<Socket> sockets = new ArrayList<>();
     private ArrayList<StackColor> socketsColors = new ArrayList<>();
-    private StackColor currentColor = StackColor.WHITE;
     private boolean serverIsRunning;
-    private boolean isAnyPopped = false;
-    private int originStackNumberOfCheckers = -1;
-    private StackColor originStackColor;
     private Executor clientsExecutor = Executors.newCachedThreadPool();
     private static final Logger log = LoggerFactory.getLogger(Server.class);
     private GameState gameState = new GameState();
@@ -48,15 +44,15 @@ public class Server {
             if (sockets.size() < 2) {
                 Socket clientSocket = socket.accept();
                 log.info("New client has connected");
-                gameState.setNumberOfConnectedUsers(gameState.getNumberOfConnectedUsers() + 1);
+//                gameState.setNumberOfConnectedUsers(gameState.getNumberOfConnectedUsers() + 1);
                 commandPerformer.setSockets(sockets);
                 serveClient(clientSocket);
             }
             else {
-                Socket clientSocket = socket.accept();
-                ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
-                oos.writeObject(null);
-                oos.flush();
+//                Socket clientSocket = socket.accept();
+//                ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
+//                oos.writeObject(null);
+//                oos.flush();
             }
         }
     }
@@ -72,7 +68,17 @@ public class Server {
                     String command = scanner.next();
                     System.out.println(command);
                     gameState = commandPerformer.performCommand(command, clientSocket, gameState);
+
+                    if (gameState.getBornOffBlack().getNumberOfCheckers() == 15)
+                        gameState.setWinner(StackColor.BLACK);
+                    if (gameState.getBornOffWhite().getNumberOfCheckers() == 15)
+                        gameState.setWinner(StackColor.WHITE);
+
                     sendGameStateToClients();
+
+                    if (gameState.getBornOffBlack().getNumberOfCheckers() == 15
+                            || gameState.getBornOffWhite().getNumberOfCheckers() == 15)
+                        shutdownServer();
                 }
             } catch (IOException e) {
                 log.error("Error while reading commands from client");
@@ -205,9 +211,9 @@ public class Server {
 
 //    private void popCheckerFromBeatenQueue() {
 //        if (currentColor == StackColor.WHITE)
-//            gameState.removeBeatenWhiteCheckers();
+//            gameState.removeBeatenWhiteChecker();
 //        else
-//            gameState.removeBeatenBlackCheckers();
+//            gameState.removeBeatenBlackChecker();
 //    }
 //
 //    private void beatTheChecker(int stackIndex) {
